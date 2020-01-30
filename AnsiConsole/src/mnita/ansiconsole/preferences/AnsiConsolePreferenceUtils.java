@@ -1,10 +1,15 @@
 package mnita.ansiconsole.preferences;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.IPreferencesService;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
 import mnita.ansiconsole.AnsiConsoleActivator;
+import mnita.ansiconsole.utils.AnsiConsoleColorPalette;
 import mnita.ansiconsole.utils.ColorCache;
 
 public class AnsiConsolePreferenceUtils {
@@ -21,6 +26,32 @@ public class AnsiConsolePreferenceUtils {
     private static final String DEBUG_CONSOLE_FALLBACK_FGCOLOR = "192,192,192";
     private static final String DEBUG_CONSOLE_FALLBACK_ERRCOLOR = "255,0,0";
     private static final String DEBUG_CONSOLE_FALLBACK_LINK_COLOR = "111,197,238";
+
+//    private static final IPreferenceStore PREF_STORE = AnsiConsoleActivator.getDefault().getPreferenceStore();
+//    private static final IPreferencesService PREF_SERVICES = Platform.getPreferencesService();
+
+    // Caching, for better performance.
+    // Start with "reasonable" values, but refresh() will update them from the saved preferences
+    private static Color debugConsoleBgColor = null;
+    private static Color debugConsoleFgColor = null;
+    private static Color debugConsoleErrorColor = null;
+    private static Color hyperlinkColor = null;
+    private static String getPreferredPalette = AnsiConsoleColorPalette.getBestPaletteForOS();
+    private static boolean useWindowsMapping = false;
+    private static boolean showAnsiEscapes = false;
+    private static boolean tryPreservingStdErrColor = true;
+    private static boolean isAnsiConsoleEnabled = true;
+    static {
+        refresh(42);
+        AnsiConsoleActivator.getDefault().getPreferenceStore()
+                .addPropertyChangeListener(evt -> { AnsiConsolePreferenceUtils.refresh(4); });
+
+        IPreferenceStore preferenceStoreDebug = new ScopedPreferenceStore(InstanceScope.INSTANCE, "org.eclipse.debug.ui");
+        IPreferenceStore preferenceStoreWorkbench = new ScopedPreferenceStore(InstanceScope.INSTANCE, "org.eclipse.ui.workbench");
+
+        preferenceStoreWorkbench.addPropertyChangeListener(evt -> { AnsiConsolePreferenceUtils.refresh(5); });
+        preferenceStoreDebug.addPropertyChangeListener(evt -> { AnsiConsolePreferenceUtils.refresh(6); });
+    }
 
     private AnsiConsolePreferenceUtils() {
         // Utility class, should not be instantiated
@@ -49,91 +80,79 @@ public class AnsiConsolePreferenceUtils {
         }
     }
 
-    public static boolean getBoolean(String name) {
-        return AnsiConsoleActivator.getDefault().getPreferenceStore().getBoolean(name);
-    }
-
-    public static String getString(String name) {
-        return AnsiConsoleActivator.getDefault().getPreferenceStore().getString(name);
-    }
-
-    public static Color prefGetColor(String id) {
-        String strColor = AnsiConsoleActivator.getDefault().getPreferenceStore().getString(id);
-        return colorFromStringRgb(strColor);
-    }
-
-    public static void setValue(String name, boolean value) {
-        AnsiConsoleActivator.getDefault().getPreferenceStore().setValue(name, value);
-    }
-
-    private static Color debugConsoleBgColor = null;
-
     public static Color getDebugConsoleBgColor() {
-        if (debugConsoleBgColor == null) {
-            String value = Platform.getPreferencesService().getString(DEBUG_CONSOLE_PLUGIN_ID,
-                    "org.eclipse.debug.ui.consoleBackground", DEBUG_CONSOLE_FALLBACK_BKCOLOR, null);
-            debugConsoleBgColor = colorFromStringRgb(value);
-        }
         return debugConsoleBgColor;
     }
 
-    private static Color debugConsoleFgColor = null;
 
     public static Color getDebugConsoleFgColor() {
-        if (debugConsoleFgColor == null) {
-            String value = Platform.getPreferencesService().getString(DEBUG_CONSOLE_PLUGIN_ID,
-                    "org.eclipse.debug.ui.outColor", DEBUG_CONSOLE_FALLBACK_FGCOLOR, null);
-            debugConsoleFgColor = colorFromStringRgb(value);
-        }
         return debugConsoleFgColor;
     }
 
-    private static Color debugConsoleErrorColor = null;
 
     public static Color getDebugConsoleErrorColor() {
-        if (debugConsoleErrorColor == null) {
-            String value = Platform.getPreferencesService().getString(DEBUG_CONSOLE_PLUGIN_ID,
-                    "org.eclipse.debug.ui.errorColor", DEBUG_CONSOLE_FALLBACK_ERRCOLOR, null);
-            debugConsoleErrorColor = colorFromStringRgb(value);
-        }
         return debugConsoleErrorColor;
     }
 
-    private static Color hyperlinkColor = null;
 
     public static Color getHyperlinkColor() {
-        if (hyperlinkColor == null) {
-            String value = Platform.getPreferencesService().getString("org.eclipse.ui.workbench",
-                    "HYPERLINK_COLOR", DEBUG_CONSOLE_FALLBACK_LINK_COLOR, null);
-            hyperlinkColor = colorFromStringRgb(value);
-        }
         return hyperlinkColor;
     }
 
-    // Convenience methods, simple "aliases" for get / set of common values
-
-    /** True if we should interpret bold as intense, italic as reverse, the way the (old?) Windows console does */
-    public static boolean useWindowsMapping() {
-        return AnsiConsolePreferenceUtils.getBoolean(AnsiConsolePreferenceConstants.PREF_WINDOWS_MAPPING);
-    }
-
+    // This is not cached, because it can change from both Preferences and the icon on console
     public static boolean isAnsiConsoleEnabled() {
-        return AnsiConsolePreferenceUtils.getBoolean(AnsiConsolePreferenceConstants.PREF_ANSI_CONSOLE_ENABLED);
+        return isAnsiConsoleEnabled;
     }
 
     public static void setAnsiConsoleEnabled(boolean enabled) {
-        AnsiConsolePreferenceUtils.setValue(AnsiConsolePreferenceConstants.PREF_ANSI_CONSOLE_ENABLED, enabled);
+        isAnsiConsoleEnabled = enabled;
+        AnsiConsoleActivator
+                .getDefault()
+                .getPreferenceStore()
+                .setValue(AnsiConsolePreferenceConstants.PREF_ANSI_CONSOLE_ENABLED, enabled);
+    }
+
+    /** True if we should interpret bold as intense, italic as reverse, the way the (old?) Windows console does */
+    public static boolean useWindowsMapping() {
+        return useWindowsMapping;
     }
 
     public static String getPreferredPalette() {
-        return AnsiConsolePreferenceUtils.getString(AnsiConsolePreferenceConstants.PREF_COLOR_PALETTE);
+        return getPreferredPalette;
     }
 
     public static boolean showAnsiEscapes() {
-        return AnsiConsolePreferenceUtils.getBoolean(AnsiConsolePreferenceConstants.PREF_SHOW_ESCAPES);
+        return showAnsiEscapes;
     }
 
     public static boolean tryPreservingStdErrColor() {
-        return AnsiConsolePreferenceUtils.getBoolean(AnsiConsolePreferenceConstants.PREF_KEEP_STDERR_COLOR);
+        return tryPreservingStdErrColor;
+    }
+
+    public static void refresh(int from) {
+        final IPreferenceStore prefStore = AnsiConsoleActivator.getDefault().getPreferenceStore();
+        final IPreferencesService prefServices = Platform.getPreferencesService();
+
+        String value = prefServices.getString(DEBUG_CONSOLE_PLUGIN_ID,
+                "org.eclipse.debug.ui.consoleBackground", DEBUG_CONSOLE_FALLBACK_BKCOLOR, null);
+        debugConsoleBgColor = colorFromStringRgb(value);
+
+        value = prefServices.getString(DEBUG_CONSOLE_PLUGIN_ID,
+                "org.eclipse.debug.ui.outColor", DEBUG_CONSOLE_FALLBACK_FGCOLOR, null);
+        debugConsoleFgColor = colorFromStringRgb(value);
+
+        value = prefServices.getString(DEBUG_CONSOLE_PLUGIN_ID,
+                "org.eclipse.debug.ui.errorColor", DEBUG_CONSOLE_FALLBACK_ERRCOLOR, null);
+        debugConsoleErrorColor = colorFromStringRgb(value);
+
+        value = prefServices.getString("org.eclipse.ui.workbench",
+                "HYPERLINK_COLOR", DEBUG_CONSOLE_FALLBACK_LINK_COLOR, null);
+        hyperlinkColor = colorFromStringRgb(value);
+
+        useWindowsMapping = prefStore.getBoolean(AnsiConsolePreferenceConstants.PREF_WINDOWS_MAPPING);
+        getPreferredPalette = prefStore.getString(AnsiConsolePreferenceConstants.PREF_COLOR_PALETTE);
+        showAnsiEscapes = prefStore.getBoolean(AnsiConsolePreferenceConstants.PREF_SHOW_ESCAPES);
+        tryPreservingStdErrColor = prefStore.getBoolean(AnsiConsolePreferenceConstants.PREF_KEEP_STDERR_COLOR);
+        isAnsiConsoleEnabled = prefStore.getBoolean(AnsiConsolePreferenceConstants.PREF_ANSI_CONSOLE_ENABLED);
     }
 }
