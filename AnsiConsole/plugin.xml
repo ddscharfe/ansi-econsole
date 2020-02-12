@@ -29,7 +29,11 @@
 			defaultHandler="mnita.ansiconsole.commands.EnableDisableHandler"
 			description="Enable/disable Ansi Console"
 			id="AnsiConsole.command.enable_disable"
-			name="Enable / disable Ansi Console">
+			name="Enable / Disable Ansi Console">
+		<state
+				class="org.eclipse.ui.handlers.RegistryToggleState:true"
+				id="org.eclipse.ui.commands.toggleState">
+		</state>
 	</command>
 	<command
 			categoryId="AnsiConsole.command.categoryid"

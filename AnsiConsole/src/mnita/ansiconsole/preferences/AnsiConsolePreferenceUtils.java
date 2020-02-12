@@ -111,10 +111,6 @@ public class AnsiConsolePreferenceUtils {
 
     public static void setAnsiConsoleEnabled(boolean enabled) {
         isAnsiConsoleEnabled = enabled;
-        AnsiConsoleActivator
-                .getDefault()
-                .getPreferenceStore()
-                .setValue(AnsiConsolePreferenceConstants.PREF_ANSI_CONSOLE_ENABLED, enabled);
     }
 
     /** True if we should interpret bold as intense, italic as reverse, the way the (old?) Windows console does */
@@ -158,6 +154,5 @@ public class AnsiConsolePreferenceUtils {
         getPreferredPalette = prefStore.getString(AnsiConsolePreferenceConstants.PREF_COLOR_PALETTE);
         showAnsiEscapes = prefStore.getBoolean(AnsiConsolePreferenceConstants.PREF_SHOW_ESCAPES);
         tryPreservingStdErrColor = prefStore.getBoolean(AnsiConsolePreferenceConstants.PREF_KEEP_STDERR_COLOR);
-        isAnsiConsoleEnabled = prefStore.getBoolean(AnsiConsolePreferenceConstants.PREF_ANSI_CONSOLE_ENABLED);
     }
 }
