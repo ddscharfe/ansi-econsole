@@ -47,14 +47,12 @@
 			locationURI="toolbar:org.eclipse.ui.console.ConsoleView">
 		<command
 				commandId="AnsiConsole.command.enable_disable"
-				disabledIcon="icons/ansiconsole_dis.gif"
-				hoverIcon="icons/ansiconsole.gif"
-				icon="icons/ansiconsole.gif"
+				icon="icons/ansicon.png"
 				style="toggle">
 		</command>
 		<command
 				commandId="AnsiConsole.command.copy_with_escapes"
-				icon="icons/ansiconsolecopy.gif"
+				icon="icons/copy.png"
 				style="push">
 		</command>
 	</menuContribution>
