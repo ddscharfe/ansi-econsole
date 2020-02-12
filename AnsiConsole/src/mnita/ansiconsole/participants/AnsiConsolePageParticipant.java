@@ -6,13 +6,11 @@ import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TypedListener;
-import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsolePageParticipant;
 import org.eclipse.ui.part.IPageBookViewPage;
 
 import mnita.ansiconsole.AnsiConsoleActivator;
-import mnita.ansiconsole.actions.AnsiConsoleCopyHandler;
 
 public class AnsiConsolePageParticipant implements IConsolePageParticipant {
     @Override
@@ -45,9 +43,6 @@ public class AnsiConsolePageParticipant implements IConsolePageParticipant {
             AnsiConsoleStyleListener myListener = new AnsiConsoleStyleListener(document);
             viewer.addLineStyleListener(myListener);
             AnsiConsoleActivator.getDefault().addViewer(viewer, this);
-
-            AnsiConsoleCopyHandler copy = new AnsiConsoleCopyHandler(viewer);
-            page.getSite().getActionBars().setGlobalActionHandler(ActionFactory.COPY.getId(), copy);
         }
     }
 

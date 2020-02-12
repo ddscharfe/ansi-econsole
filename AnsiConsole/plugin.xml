@@ -18,31 +18,46 @@
 	</consolePageParticipant>
 </extension>
 
-<extension point="org.eclipse.ui.viewActions">
-	<viewContribution id="mnita.ansiconsole.viewConsoleClickableIcon" targetID="org.eclipse.ui.console.ConsoleView">
-		<action
-			class="mnita.ansiconsole.actions.AnsiConsoleClickIconAction"
-			icon="icons/ansiconsole.gif"
-			disabledIcon="icons/ansiconsole_dis.gif"
-			id="mnita.ansiconsole.AnsiConsoleClickIconAction"
-			label="Enable/disable Ansi Console"
-			style="push"
-			toolbarPath="additions">
-		</action>
-	</viewContribution>
+<extension
+		point="org.eclipse.ui.commands">
+	<category
+			 id="AnsiConsole.command.categoryid"
+			 name="Ansi Console Commands">
+	</category>
+	<command
+			categoryId="AnsiConsole.command.categoryid"
+			defaultHandler="mnita.ansiconsole.commands.EnableDisableHandler"
+			description="Enable/disable Ansi Console"
+			id="AnsiConsole.command.enable_disable"
+			name="Enable / disable Ansi Console">
+	</command>
+	<command
+			categoryId="AnsiConsole.command.categoryid"
+			defaultHandler="mnita.ansiconsole.commands.CopyWithEscapesHandler"
+			description="Copy the console content to clipboard, including the escape sequences"
+			id="AnsiConsole.command.copy_with_escapes"
+			name="Copy text with escapes">
+	</command>
 </extension>
 
-<extension point="org.eclipse.ui.viewActions">
-	<viewContribution id="mnita.ansiconsole.copyPlainTextConsoleClickableIcon" targetID="org.eclipse.ui.console.ConsoleView">
-		<action
-			class="mnita.ansiconsole.actions.AnsiConsoleCopyIconAction"
-			icon="icons/ansiconsolecopy.gif"
-			id="mnita.ansiconsole.AnsiConsoleCopyIconAction"
-			label="Copy text with escapes"
-			style="push"
-			toolbarPath="additions">
-		</action>
-	</viewContribution>
+<extension
+		point="org.eclipse.ui.menus">
+	<menuContribution
+			allPopups="false"
+			locationURI="toolbar:org.eclipse.ui.console.ConsoleView">
+		<command
+				commandId="AnsiConsole.command.enable_disable"
+				disabledIcon="icons/ansiconsole_dis.gif"
+				hoverIcon="icons/ansiconsole.gif"
+				icon="icons/ansiconsole.gif"
+				style="toggle">
+		</command>
+		<command
+				commandId="AnsiConsole.command.copy_with_escapes"
+				icon="icons/ansiconsolecopy.gif"
+				style="push">
+		</command>
+	</menuContribution>
 </extension>
 
 </plugin>
