@@ -55,7 +55,6 @@ public class AnsiConsolePreferenceUtils {
     private static boolean useWindowsMapping = false;
     private static boolean showAnsiEscapes = false;
     private static boolean tryPreservingStdErrColor = true;
-    private static boolean isAnsiConsoleEnabled = true;
 
     static {
         refresh();
@@ -122,12 +121,10 @@ public class AnsiConsolePreferenceUtils {
 
     // This is not cached, because it can change from both Preferences and the icon on console
     public static boolean isAnsiConsoleEnabled() {
-        return isAnsiConsoleEnabled;
+        return PREF_STORE.getBoolean(AnsiConsolePreferenceConstants.PREF_ANSI_CONSOLE_ENABLED);
     }
 
     public static void setAnsiConsoleEnabled(boolean enabled) {
-        isAnsiConsoleEnabled = enabled;
-// DELETE THIS?
         PREF_STORE.setValue(AnsiConsolePreferenceConstants.PREF_ANSI_CONSOLE_ENABLED, enabled);
     }
 
@@ -195,7 +192,5 @@ public class AnsiConsolePreferenceUtils {
         getPreferredPalette = PREF_STORE.getString(AnsiConsolePreferenceConstants.PREF_COLOR_PALETTE);
         showAnsiEscapes = PREF_STORE.getBoolean(AnsiConsolePreferenceConstants.PREF_SHOW_ESCAPES);
         tryPreservingStdErrColor = PREF_STORE.getBoolean(AnsiConsolePreferenceConstants.PREF_KEEP_STDERR_COLOR);
-// DELETE THIS?
-        isAnsiConsoleEnabled = PREF_STORE.getBoolean(AnsiConsolePreferenceConstants.PREF_ANSI_CONSOLE_ENABLED);
     }
 }

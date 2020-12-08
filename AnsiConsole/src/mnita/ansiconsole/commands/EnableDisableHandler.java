@@ -17,6 +17,8 @@ import org.eclipse.ui.menus.UIElement;
 import mnita.ansiconsole.preferences.AnsiConsolePreferenceUtils;
 
 public class EnableDisableHandler extends AbstractHandler implements IElementUpdater {
+	public static final String COMMAND_ID = "AnsiConsole.command.enable_disable";
+
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         boolean value = HandlerUtil.toggleCommandState(event.getCommand());
@@ -26,9 +28,9 @@ public class EnableDisableHandler extends AbstractHandler implements IElementUpd
     }
 
     @Override
-    public void updateElement(UIElement element, Map parameters) {
+    public void updateElement(UIElement element, @SuppressWarnings("rawtypes") Map parameters) {
         ICommandService service = PlatformUI.getWorkbench().getService(ICommandService.class);
-        Command command = service.getCommand("AnsiConsole.command.enable_disable");
+        Command command = service.getCommand(COMMAND_ID);
         State state = command.getState(RegistryToggleState.STATE_ID);
         AnsiConsolePreferenceUtils.setAnsiConsoleEnabled((Boolean) state.getValue());
     }
